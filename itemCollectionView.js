@@ -8,18 +8,21 @@ var Model = require('./model');
 module.exports = Backbone.View.extend({
   el: '#moviesCont',
   events: {
-    'submit form': 'doSomething',
+    'submit .moviePost': 'doSomething',
   },
   doSomething: function(e){
     e.preventDefault();
     var model = new Model({
-      cover: $("input[name='cover']").val(),
-      title: $("input[name='title']").val(),
-      rating: $("input[name='rating']").val(),
-      year: $("input[name='year']").val(),
-      plot: $("textarea[name='plot']").val()
+      cover: this.$("input[name='cover']").val(),
+      title: this.$("input[name='title']").val(),
+      rating: this.$("input[name='rating']").val(),
+      year: this.$("input[name='year']").val(),
+      plot: this.$("textarea[name='plot']").val()
     });
-    model.save();
+    var that = this;
+    model.save().then(function(){
+      that.addOne(model);
+    });
   },
   initialize: function () {
     this.addAll();
