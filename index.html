@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>IMBb Clone</title>
+    <script type="text/html" id="movieTmpl">
+      <div class="movieCont">
+        <h1><%= title %></h1>
+        <h1><%= year %></h1><br/>
+        <img src="<%= cover %>"/>
+        <p><%= plot%></p>
+        <h3><%= rating%></h3>
+        <button class='delete'>delete</button>
+      </div>
+    </script>
+  </head>
+  <body>
+    <form class="moviePost" action="index.html" method="post">
+      <input type="text" name="title" value="" placeholder="Enter the movie's title here">
+      <input type="text" name="year" value="" placeholder="Eneter the movie's release year here">
+      <input type="text" name="cover" value="" placeholder="Enter the cover image URL here">
+      <textarea type="text" name="plot" value="" placeholder="Enter a short plot synopsis here"></textarea>
+      <input type="text" name="rating" value="" placeholder="Enter the movie's rating here">
+      <button type="submit" name="submit" class="submit">Submit</button>
+    </form>
+    <div id="moviesCont"></div>
+    <script src="bundle.js" charset="utf-8"></script>
+  </body>
+</html>
