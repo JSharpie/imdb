@@ -95,8 +95,6 @@ var $ = require('jquery');
 Backbone.$ = $;
 
 module.exports = Backbone.View.extend({
-  tagname:"article",
-  className: "",
   template: _.template($('#movieTmpl').html()),
   events: {
     'click .delete': 'delete',

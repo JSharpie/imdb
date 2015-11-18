@@ -15,17 +15,20 @@
         <button class='delete'>delete</button>
         <button class='edit'>edit</button>
         <form class="movieEdit hidden" action="index.html" method="post">
-          <input type="text" class="form-control" name="etitle" value="" placeholder="Enter the movie's title here">
-          <input type="text" class="form-control" name="eyear" value="" placeholder="Eneter the movie's release year here">
-          <input type="text" class="form-control" name="ecover" value="" placeholder="Enter the cover image URL here">
-          <textarea type="text" class="form-control" name="eplot" value="" placeholder="Enter a short plot synopsis here"></textarea>
-          <input type="text" class="form-control" name="erating" value="" placeholder="Enter the movie's rating here">
+          <input type="text" class="form-control" name="etitle" value="<%=title %>">
+          <input type="text" class="form-control" name="eyear" value="<%=year %>">
+          <input type="text" class="form-control" name="ecover" value="<%=cover %>">
+          <textarea type="text" class="form-control" name="eplot"> <%=plot %></textarea>
+          <input type="text" class="form-control" name="erating" value="<%=rating %>">
           <button type="submit" name="esubmit" class="esubmit">Submit</button>
         </form>
       </div>
     </script>
   </head>
   <body>
+    <header>
+      <h1>IMBAd</h1>
+    </header>
     <div id="moviesCont">
       <form class="moviePost hidden" action="index.html" method="post">
         <input type="text" class="form-control" name="title" value="" placeholder="Enter the movie's title here">
@@ -37,6 +40,9 @@
       </form>
       <button class="showForm">Add New Movie</button>
     </div>
+    <footer>
+      <h1>IMBAd</h1>
+    </footer>
     <script src="bundle.js" charset="utf-8"></script>
   </body>
 </html>
