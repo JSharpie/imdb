@@ -2,9 +2,10 @@ var Backbone = require('backbone');
 var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
+var tmpl = require('./templates')
 
 module.exports = Backbone.View.extend({
-  template: _.template($('#movieTmpl').html()),
+  template: _.template(tmpl.movie),
   events: {
     'click .delete': 'delete',
     'click .edit': 'edit',

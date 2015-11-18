@@ -1,5 +1,98 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+var _ = require('underscore');
+var tmpl = require('./templates');
+
+module.exports = Backbone.View.extend({
+  initialize: function(){},
+  template: _.template(tmpl.footer),
+  render: function(){
+    var markup = this.template({});
+    this.$el.html(markup);
+    return this;
+  }
+});
+
+},{"./templates":13,"backbone":10,"jquery":11,"underscore":12}],2:[function(require,module,exports){
+var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+var _ = require('underscore');
+var tmpl = require('./templates');
+var Model = require('./model');
+var ModelView = require('./modelView');
+
+module.exports = Backbone.View.extend({
+  className: 'addMovie',
+  model: null,
+  events: {
+    'click .showForm': 'addForm',
+    'submit .moviePost': 'addMovie'
+  },
+  initialize: function(){
+    if(!this.model) {
+      this.model = new Model();
+    }
+  },
+  addForm: function(e){
+    e.preventDefault();
+    this.$('.moviePost').toggleClass('hidden');
+    this.$('.showForm').toggleClass('hidden');
+  },
+  addMovie: function(e){
+    e.preventDefault();
+    var newMovie = {
+      title: this.$el.find('input[name="title"]').val(),
+      year: this.$el.find('input[name="year"]').val(),
+      cover: this.$el.find('input[name="cover"]').val(),
+      plot: this.$el.find('textarea[name="plot"]').val(),
+      rating: this.$el.find('input[name="rating"]').val()
+    };
+    var modelView = new ModelView({model: this.model});
+    this.model.set(newMovie);
+    var that = this;
+    this.model.save();
+    this.renderNew();
+    this.$('.moviePost').toggleClass('hidden');
+    this.$('.showForm').toggleClass('hidden');
+    this.$el.find('input, textarea').val('');
+
+  },
+  template: _.template(tmpl.form),
+  newPostTmpl: _.template(tmpl.movie),
+  render: function () {
+    var markup = this.template(this.model.toJSON());
+    this.$el.append(markup);
+    return this;
+  },
+  renderNew: function(){
+    var markup = this.newPostTmpl(this.model.toJSON());
+    this.$el.append(markup);
+    return this;
+  }
+});
+
+},{"./model":8,"./modelView":9,"./templates":13,"backbone":10,"jquery":11,"underscore":12}],3:[function(require,module,exports){
+var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+var _ = require('underscore');
+var tmpl = require('./templates');
+
+module.exports = Backbone.View.extend({
+  initialize: function(){},
+  template: _.template(tmpl.header),
+  render: function(){
+    var markup = this.template({});
+    this.$el.html(markup);
+    return this;
+  }
+});
+
+},{"./templates":13,"backbone":10,"jquery":11,"underscore":12}],4:[function(require,module,exports){
+var Backbone = require('backbone');
 var Model = require('./model');
 module.exports = Backbone.Collection.extend({
   url: 'http://tiny-tiny.herokuapp.com/collections/imdb-jacob',
@@ -8,42 +101,16 @@ module.exports = Backbone.Collection.extend({
   }
 });
 
-},{"./model":4,"backbone":6}],2:[function(require,module,exports){
+},{"./model":8,"backbone":10}],5:[function(require,module,exports){
 var Backbone = require('backbone');
 var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
 var ModelView = require('./modelView');
-var Model = require('./model');
 
 module.exports = Backbone.View.extend({
   el: '#moviesCont',
-  events: {
-    'submit .moviePost': 'newMovie',
-    'click .showForm': 'addForm',
-  },
-  newMovie: function(e){
-    e.preventDefault();
-    var model = new Model({
-      cover: this.$("input[name='cover']").val(),
-      title: this.$("input[name='title']").val(),
-      rating: this.$("input[name='rating']").val(),
-      year: this.$("input[name='year']").val(),
-      plot: this.$("textarea[name='plot']").val()
-    });
-    var that = this;
-    this.$('.moviePost').addClass('hidden');
-    this.$('.showForm').removeClass('hidden');
-    model.save().then(function(){
-      that.addOne(model);
-    });
-  },
-  addForm: function(e){
-    e.preventDefault();
-    console.log('fired');
-    this.$('.moviePost').toggleClass('hidden');
-    this.$('.showForm').toggleClass('hidden');
-  },
+  collection: null,
   initialize: function () {
     this.addAll();
   },
@@ -56,21 +123,43 @@ module.exports = Backbone.View.extend({
   }
 });
 
-},{"./model":4,"./modelView":5,"backbone":6,"jquery":7,"underscore":8}],3:[function(require,module,exports){
+},{"./modelView":9,"backbone":10,"jquery":11,"underscore":12}],6:[function(require,module,exports){
+var Backbone = require('backbone');
 var $ = require('jquery');
-var ItemCollection = require('./itemCollection');
-var ItemCollectionView = require('./itemCollectionView');
+Backbone.$ = $;
+var _ = require('underscore');
+var HeaderView = require('./headerView');
+var FormView = require('./formView');
+var FooterView = require('./footerView');
+var Collection = require('./itemCollection');
+var CollectionView = require('./itemCollectionView');
 
-$(function () {
-  var movies = new ItemCollection();
-
-  movies.fetch().then(function (data){
-    new ItemCollectionView({collection: movies});
-
-  });
+module.exports = Backbone.View.extend({
+  el:'#layoutCont',
+  initialize: function(){
+    var that = this;
+    var headerHTML = new HeaderView();
+    var formHTML= new FormView();
+    var footerHTML = new FooterView();
+    var collection = new Collection();
+    collection.fetch().then(function(){
+      var collectionView = new CollectionView({collection: collection});
+      that.$el.find('header').html(headerHTML.render().el);
+      that.$el.find('#moviesCont').prepend(formHTML.render().el);
+      that.$el.find('footer').html(footerHTML.render().el);
+    });
+  },
 });
 
-},{"./itemCollection":1,"./itemCollectionView":2,"jquery":7}],4:[function(require,module,exports){
+},{"./footerView":1,"./formView":2,"./headerView":3,"./itemCollection":4,"./itemCollectionView":5,"backbone":10,"jquery":11,"underscore":12}],7:[function(require,module,exports){
+var $ = require('jquery');
+var LayoutView = require('./layoutView');
+
+$(function () {
+  new LayoutView();
+});
+
+},{"./layoutView":6,"jquery":11}],8:[function(require,module,exports){
 var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
@@ -88,14 +177,15 @@ module.exports = Backbone.Model.extend({
   }
 });
 
-},{"backbone":6}],5:[function(require,module,exports){
+},{"backbone":10}],9:[function(require,module,exports){
 var Backbone = require('backbone');
 var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
+var tmpl = require('./templates')
 
 module.exports = Backbone.View.extend({
-  template: _.template($('#movieTmpl').html()),
+  template: _.template(tmpl.movie),
   events: {
     'click .delete': 'delete',
     'click .edit': 'edit',
@@ -134,7 +224,7 @@ module.exports = Backbone.View.extend({
 
 });
 
-},{"backbone":6,"jquery":7,"underscore":8}],6:[function(require,module,exports){
+},{"./templates":13,"backbone":10,"jquery":11,"underscore":12}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2032,7 +2122,7 @@ module.exports = Backbone.View.extend({
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":7,"underscore":8}],7:[function(require,module,exports){
+},{"jquery":11,"underscore":12}],11:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -11244,7 +11334,7 @@ return jQuery;
 
 }));
 
-},{}],8:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -12794,4 +12884,45 @@ return jQuery;
   }
 }.call(this));
 
-},{}]},{},[3]);
+},{}],13:[function(require,module,exports){
+module.exports = {
+  movie: [
+    "<div class='movieCont'>",
+      "<h1><%= title %></h1>",
+      "<h1><%= year %></h1><br/>",
+      "<img src='<%= cover %>'/>",
+      "<p><%= plot%></p>",
+      "<h3><%= rating%></h3>",
+      "<button class='delete'>delete</button>",
+      "<button class='edit'>edit</button>",
+      "<form class='movieEdit hidden' action='index.html' method='post'>",
+        "<input type='text' class='form-control' name='etitle' value='<%=title %>'>",
+        "<input type='text' class='form-control' name='eyear' value='<%=year %>'>",
+        "<input type='text' class='form-control' name='ecover' value='<%=cover %>'>",
+        "<textarea type='text' class='form-control' name='eplot'> <%=plot %></textarea>",
+        "<input type='text' class='form-control' name='erating' value='<%=rating %>'>",
+        "<button type='submit' name='esubmit' class='esubmit'>Submit</button>",
+      "</form>",
+    "</div>"
+  ].join(''),
+
+  header: [
+    "<h1>IMBAd</h1>"
+  ].join(''),
+  footer: [
+    "<h1>IMBAd</h1>"
+  ].join(''),
+  form: [
+    "<form class='moviePost hidden' action='index.html' method='post'>",
+      "<input type='text' class='form-control' name='title' value='' placeholder='Enter the movie's title here'>",
+      "<input type='text' class='form-control' name='year' value='' placeholder='Eneter the movie's release year here'>",
+      "<input type='text' class='form-control' name='cover' value='' placeholder='Enter the cover image URL here'>",
+      "<textarea type='text' class='form-control' name='plot' value='' placeholder='Enter a short plot synopsis here'></textarea>",
+      "<input type='text' class='form-control' name='rating' value='' placeholder='Enter the movie's rating here'>",
+      "<button type='submit' name='submit' class='submit'>Submit</button>",
+    "</form>",
+    "<button class='showForm'>Add New Movie</button>"
+  ].join('')
+}
+
+},{}]},{},[7]);
