@@ -19,9 +19,10 @@ var Model = require('./model');
 module.exports = Backbone.View.extend({
   el: '#moviesCont',
   events: {
-    'submit .moviePost': 'doSomething',
+    'submit .moviePost': 'newMovie',
+    'click .showForm': 'addForm',
   },
-  doSomething: function(e){
+  newMovie: function(e){
     e.preventDefault();
     var model = new Model({
       cover: this.$("input[name='cover']").val(),
@@ -31,9 +32,17 @@ module.exports = Backbone.View.extend({
       plot: this.$("textarea[name='plot']").val()
     });
     var that = this;
+    this.$('.moviePost').addClass('hidden');
+    this.$('.showForm').removeClass('hidden');
     model.save().then(function(){
       that.addOne(model);
     });
+  },
+  addForm: function(e){
+    e.preventDefault();
+    console.log('fired');
+    this.$('.moviePost').toggleClass('hidden');
+    this.$('.showForm').toggleClass('hidden');
   },
   initialize: function () {
     this.addAll();
