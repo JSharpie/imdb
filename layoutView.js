@@ -19,7 +19,7 @@ module.exports = Backbone.View.extend({
     collection.fetch().then(function(){
       var collectionView = new CollectionView({collection: collection});
       that.$el.find('header').html(headerHTML.render().el);
-      that.$el.find('#moviesCont').prepend(formHTML.render().el);
+      that.$el.find('#pageCont').prepend(formHTML.render().el);
       that.$el.find('footer').html(footerHTML.render().el);
     });
   },

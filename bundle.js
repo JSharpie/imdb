@@ -23,7 +23,8 @@ var _ = require('underscore');
 var tmpl = require('./templates');
 var Model = require('./model');
 var ModelView = require('./modelView');
-
+var Collection = require('./itemCollection');
+var CollectionView = require('./itemCollectionView');
 module.exports = Backbone.View.extend({
   className: 'addMovie',
   model: null,
@@ -32,7 +33,7 @@ module.exports = Backbone.View.extend({
     'submit .moviePost': 'addMovie'
   },
   initialize: function(){
-    if(!this.model) {
+    if(!this.model){
       this.model = new Model();
     }
   },
@@ -50,11 +51,16 @@ module.exports = Backbone.View.extend({
       plot: this.$el.find('textarea[name="plot"]').val(),
       rating: this.$el.find('input[name="rating"]').val()
     };
-    var modelView = new ModelView({model: this.model});
-    this.model.set(newMovie);
+    var model = new Model();
+    model.set(newMovie);
     var that = this;
-    this.model.save();
-    this.renderNew();
+    model.save();
+    var collection = new Collection();
+    $('#moviesCont').html('');
+    collection.fetch().then(function(data){
+      collection.unshift(model);
+      var collectionView = new CollectionView({collection: collection});
+    });
     this.$('.moviePost').toggleClass('hidden');
     this.$('.showForm').toggleClass('hidden');
     this.$el.find('input, textarea').val('');
@@ -74,7 +80,7 @@ module.exports = Backbone.View.extend({
   }
 });
 
-},{"./model":8,"./modelView":9,"./templates":13,"backbone":10,"jquery":11,"underscore":12}],3:[function(require,module,exports){
+},{"./itemCollection":4,"./itemCollectionView":5,"./model":8,"./modelView":9,"./templates":13,"backbone":10,"jquery":11,"underscore":12}],3:[function(require,module,exports){
 var Backbone = require('backbone');
 var $ = require('jquery');
 Backbone.$ = $;
@@ -145,7 +151,7 @@ module.exports = Backbone.View.extend({
     collection.fetch().then(function(){
       var collectionView = new CollectionView({collection: collection});
       that.$el.find('header').html(headerHTML.render().el);
-      that.$el.find('#moviesCont').prepend(formHTML.render().el);
+      that.$el.find('#pageCont').prepend(formHTML.render().el);
       that.$el.find('footer').html(footerHTML.render().el);
     });
   },
@@ -217,7 +223,7 @@ module.exports = Backbone.View.extend({
   render: function () {
     console.log(this.model);
     var markup = this.template(this.model.toJSON());
-    this.$el.html(markup);
+    this.$el.prepend(markup);
     return this;
   },
   initialize: function () {}

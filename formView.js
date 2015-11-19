@@ -5,7 +5,8 @@ var _ = require('underscore');
 var tmpl = require('./templates');
 var Model = require('./model');
 var ModelView = require('./modelView');
-
+var Collection = require('./itemCollection');
+var CollectionView = require('./itemCollectionView');
 module.exports = Backbone.View.extend({
   className: 'addMovie',
   model: null,
@@ -14,7 +15,7 @@ module.exports = Backbone.View.extend({
     'submit .moviePost': 'addMovie'
   },
   initialize: function(){
-    if(!this.model) {
+    if(!this.model){
       this.model = new Model();
     }
   },
@@ -32,11 +33,16 @@ module.exports = Backbone.View.extend({
       plot: this.$el.find('textarea[name="plot"]').val(),
       rating: this.$el.find('input[name="rating"]').val()
     };
-    var modelView = new ModelView({model: this.model});
-    this.model.set(newMovie);
+    var model = new Model();
+    model.set(newMovie);
     var that = this;
-    this.model.save();
-    this.renderNew();
+    model.save();
+    var collection = new Collection();
+    $('#moviesCont').html('');
+    collection.fetch().then(function(data){
+      collection.unshift(model);
+      var collectionView = new CollectionView({collection: collection});
+    });
     this.$('.moviePost').toggleClass('hidden');
     this.$('.showForm').toggleClass('hidden');
     this.$el.find('input, textarea').val('');
