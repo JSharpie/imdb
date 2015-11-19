@@ -32,7 +32,6 @@ module.exports = Backbone.View.extend({
     });
     $('.movieEdit').addClass('hidden');
     editted.save();
-    this.render();
   },
   render: function () {
     console.log(this.model);

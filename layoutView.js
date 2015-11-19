@@ -13,13 +13,13 @@ module.exports = Backbone.View.extend({
   initialize: function(){
     var that = this;
     var headerHTML = new HeaderView();
-    var formHTML= new FormView();
     var footerHTML = new FooterView();
     var collection = new Collection();
     collection.fetch().then(function(){
       var collectionView = new CollectionView({collection: collection});
+      var formHTML= new FormView({collection: collection});
       that.$el.find('header').html(headerHTML.render().el);
-      that.$el.find('#pageCont').prepend(formHTML.render().el);
+      that.$el.find('#pageCont').html(formHTML.render().el);
       that.$el.find('footer').html(footerHTML.render().el);
     });
   },
