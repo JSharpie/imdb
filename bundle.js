@@ -23,7 +23,7 @@ var _ = require('underscore');
 var tmpl = require('./templates');
 var Model = require('./model');
 var ModelView = require('./modelView');
-
+var Collection = require('./itemCollection');
 module.exports = Backbone.View.extend({
   className: 'addMovie',
   model: null,
@@ -50,31 +50,24 @@ module.exports = Backbone.View.extend({
       plot: this.$el.find('textarea[name="plot"]').val(),
       rating: this.$el.find('input[name="rating"]').val()
     };
-    var modelView = new ModelView({model: this.model});
     this.model.set(newMovie);
     var that = this;
-    this.model.save();
-    this.renderNew();
+    this.model.save().then(function(){
+      that.collection.add(that.model);
+    })
     this.$('.moviePost').toggleClass('hidden');
     this.$('.showForm').toggleClass('hidden');
     this.$el.find('input, textarea').val('');
-
   },
   template: _.template(tmpl.form),
-  newPostTmpl: _.template(tmpl.movie),
   render: function () {
     var markup = this.template(this.model.toJSON());
-    this.$el.append(markup);
+    this.$el.html(markup);
     return this;
   },
-  renderNew: function(){
-    var markup = this.newPostTmpl(this.model.toJSON());
-    this.$el.append(markup);
-    return this;
-  }
 });
 
-},{"./model":8,"./modelView":9,"./templates":13,"backbone":10,"jquery":11,"underscore":12}],3:[function(require,module,exports){
+},{"./itemCollection":4,"./model":8,"./modelView":9,"./templates":13,"backbone":10,"jquery":11,"underscore":12}],3:[function(require,module,exports){
 var Backbone = require('backbone');
 var $ = require('jquery');
 Backbone.$ = $;
@@ -97,7 +90,7 @@ var Model = require('./model');
 module.exports = Backbone.Collection.extend({
   url: 'http://tiny-tiny.herokuapp.com/collections/imdb-jacob',
   model: Model,
-  initialize: function () {
+  initialize: function(){
   }
 });
 
@@ -107,23 +100,27 @@ var _ = require('underscore');
 var $ = require('jquery');
 Backbone.$ = $;
 var ModelView = require('./modelView');
+var Collection = require('./itemCollection');
 
 module.exports = Backbone.View.extend({
   el: '#moviesCont',
   collection: null,
   initialize: function () {
     this.addAll();
+    console.log(this.collection);
+    this.listenTo(this.collection, 'add', this.addAll);
   },
   addOne: function (model) {
     var modelView = new ModelView({model: model});
     this.$el.append(modelView.render().el);
   },
   addAll: function () {
+    $('#moviesCont').html('');
     _.each(this.collection.models, this.addOne, this);
   }
 });
 
-},{"./modelView":9,"backbone":10,"jquery":11,"underscore":12}],6:[function(require,module,exports){
+},{"./itemCollection":4,"./modelView":9,"backbone":10,"jquery":11,"underscore":12}],6:[function(require,module,exports){
 var Backbone = require('backbone');
 var $ = require('jquery');
 Backbone.$ = $;
@@ -212,11 +209,11 @@ module.exports = Backbone.View.extend({
     });
     $('.movieEdit').addClass('hidden');
     editted.save();
+    this.render();
   },
   render: function () {
-    console.log(this.model);
     var markup = this.template(this.model.toJSON());
-    this.$el.prepend(markup);
+    this.$el.html(markup);
     return this;
   },
   initialize: function () {}

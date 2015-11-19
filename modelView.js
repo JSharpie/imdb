@@ -32,11 +32,11 @@ module.exports = Backbone.View.extend({
     });
     $('.movieEdit').addClass('hidden');
     editted.save();
+    this.render();
   },
   render: function () {
-    console.log(this.model);
     var markup = this.template(this.model.toJSON());
-    this.$el.prepend(markup);
+    this.$el.html(markup);
     return this;
   },
   initialize: function () {}
